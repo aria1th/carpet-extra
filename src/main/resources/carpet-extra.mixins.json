@@ -23,7 +23,7 @@
     "AbsorbWaterMixin",
     "DropperBlock_craftingMixin",
     "DispenserBlockEntity_craftingMixin",
-
+    "BlockItemMixin_accurateBlockPlacement",
     "DispenserBlock_GetCustomBehaviorMixin",
     "DispenserBehaviorCarpetsMixin",
     "DispenserBehaviorChestMixin",
