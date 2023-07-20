@@ -24,13 +24,15 @@ import net.minecraft.util.math.Vec3d;
 
 public class BlockPlacer
 {
-	private static boolean isBlockAttachableChest(Block originBlock, Direction facing, BlockPos checkPos, World world) {
+	private static boolean isBlockAttachableChest(Block originBlock, Direction facing, BlockPos checkPos, World world, ChestType chestType) {
+		// chestType is the type of the chest we are placing, so attachable chest should have at least single or other type
 		BlockState checkState = world.getBlockState(checkPos);
 		if (checkState == null) {
 			return false;
 		}
 		if (originBlock.equals(checkState.getBlock())) {
-			return checkState.get(ChestBlock.FACING).equals(facing) && checkState.get(ChestBlock.CHEST_TYPE) == ChestType.SINGLE;
+			ChestType checkChestType = checkState.get(ChestBlock.CHEST_TYPE);
+			return checkState.get(ChestBlock.FACING).equals(facing) && (checkChestType != chestType);
 		}
 		return false;
 	}
@@ -81,19 +83,20 @@ public class BlockPlacer
                         return null;
                     }
                 }
-
                 state = state.with(directionProp, facing);
+	            if (block instanceof ChestBlock)
+	            {
+		            if (isBlockAttachableChest(block, facing, blockPos.offset(facing.rotateYClockwise()), context.getWorld(), ChestType.LEFT)) {
+			            state = state.with(ChestBlock.CHEST_TYPE, ChestType.LEFT);
+		            }
+		            else if (isBlockAttachableChest(block, facing, blockPos.offset(facing.rotateYCounterclockwise()), context.getWorld(), ChestType.RIGHT)) {
+			            state = state.with(ChestBlock.CHEST_TYPE, ChestType.RIGHT);
+		            }
+					else {
+			            state = state.with(ChestBlock.CHEST_TYPE, ChestType.SINGLE);
+		            }
+	            }
             }
-	        if (block instanceof ChestBlock)
-	        {
-		        if (isBlockAttachableChest(block, facing, blockPos.offset(facing.rotateYClockwise()), context.getWorld())) {
-			        state = state.with(ChestBlock.CHEST_TYPE, ChestType.LEFT);
-		        }
-		        else if (isBlockAttachableChest(block, facing, blockPos.offset(facing.rotateYCounterclockwise()), context.getWorld())) {
-			        state = state.with(ChestBlock.CHEST_TYPE, ChestType.RIGHT);
-		        }
-		        state = state.with(ChestBlock.CHEST_TYPE, ChestType.SINGLE);
-	        }
         }
         else if (state.contains(Properties.AXIS))
         {
